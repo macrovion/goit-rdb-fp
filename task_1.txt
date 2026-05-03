@@ -1,0 +1,67 @@
+CREATE TABLE locations (
+    location_id INT AUTO_INCREMENT PRIMARY KEY,
+    entity VARCHAR(255) NOT NULL UNIQUE,
+    code VARCHAR(10)
+);
+
+INSERT INTO locations (entity, code)
+SELECT DISTINCT
+    Entity,
+    Code
+FROM infectious_cases;
+
+CREATE TABLE infectious_cases_normalized (
+    case_id INT AUTO_INCREMENT PRIMARY KEY,
+    location_id INT NOT NULL,
+    year INT NOT NULL,
+
+    Number_yaws DOUBLE,
+    polio_cases DOUBLE,
+    cases_guinea_worm DOUBLE,
+    Number_rabies DOUBLE,
+    Number_malaria DOUBLE,
+    Number_hiv DOUBLE,
+    Number_tuberculosis DOUBLE,
+    Number_smallpox DOUBLE,
+    Number_cholera_cases DOUBLE,
+
+    CONSTRAINT fk_cases_location
+        FOREIGN KEY (location_id)
+        REFERENCES locations(location_id),
+
+    CONSTRAINT uq_location_year
+        UNIQUE (location_id, year)
+);
+
+
+
+INSERT INTO infectious_cases_normalized (
+    location_id,
+    year,
+    Number_yaws,
+    polio_cases,
+    cases_guinea_worm,
+    Number_rabies,
+    Number_malaria,
+    Number_hiv,
+    Number_tuberculosis,
+    Number_smallpox,
+    Number_cholera_cases
+)
+SELECT
+    l.location_id,
+    ic.`Year`,
+
+    CAST(NULLIF(TRIM(ic.Number_yaws), '') AS DOUBLE),
+    CAST(NULLIF(TRIM(ic.polio_cases), '') AS DOUBLE),
+    CAST(NULLIF(TRIM(ic.cases_guinea_worm), '') AS DOUBLE),
+    CAST(NULLIF(TRIM(ic.Number_rabies), '') AS DOUBLE),
+    CAST(NULLIF(TRIM(ic.Number_malaria), '') AS DOUBLE),
+    CAST(NULLIF(TRIM(ic.Number_hiv), '') AS DOUBLE),
+    CAST(NULLIF(TRIM(ic.Number_tuberculosis), '') AS DOUBLE),
+    CAST(NULLIF(TRIM(ic.Number_smallpox), '') AS DOUBLE),
+    CAST(NULLIF(TRIM(ic.Number_cholera_cases), '') AS DOUBLE)
+
+FROM infectious_cases ic
+JOIN locations l
+    ON ic.Entity = l.entity;

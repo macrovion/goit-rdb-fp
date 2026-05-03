@@ -1,0 +1,31 @@
+DROP FUNCTION IF EXISTS get_year_difference;
+
+DELIMITER //
+
+CREATE FUNCTION get_year_difference(input_year INT)
+RETURNS INT
+NOT DETERMINISTIC
+READS SQL DATA
+BEGIN
+    RETURN TIMESTAMPDIFF(
+        YEAR,
+        STR_TO_DATE(CONCAT(input_year, '-01-01'), '%Y-%m-%d'),
+        CURDATE()
+    );
+END //
+
+DELIMITER ;
+
+
+SELECT get_year_difference(1996) AS year_difference;
+
+SELECT
+    case_id,
+    entity_id,
+    case_year,
+    STR_TO_DATE(CONCAT(case_year, '-01-01'), '%Y-%m-%d') AS year_start_date,
+    CURDATE() AS current_date_value,
+    get_year_difference(case_year) AS year_difference
+FROM infectious_cases_normalized;
+
+
